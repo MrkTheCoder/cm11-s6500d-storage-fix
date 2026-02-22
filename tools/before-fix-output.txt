@@ -1,0 +1,263 @@
+====== SDCARD0 DIAGNOSTIC REPORT v1.0.0 ======
+Generated: Sun Feb 22 10:32:04 IRST 2026
+
+=== 1. SERVICE STATUS ===
+[Checks: fuse_sdcard0, mount_sdcard0, vold services]
+[Expected: fuse_sdcard0=running, mount_sdcard0=stopped, vold=running]
+[init.svc.vold]: [running]
+
+=== 2. STORAGE PROPERTIES ===
+[Checks: System properties for storage, vold, FUSE, mount status]
+[Expected: vold.post_fs_data_done=1, sys.sdcard0.mounted=1]
+[init.svc.fuse_sdcard1]: [running]
+[init.svc.rmt_storage]: [running]
+[init.svc.vold]: [running]
+[ro.vold.umsdirtyratio]: [50]
+[vold.post_fs_data_done]: [1]
+
+[init.svc.fuse_sdcard1]: [running]
+[persist.sys.country]: [US]
+[persist.sys.dalvik.multithread]: [false]
+[persist.sys.dalvik.vm.lib]: [libdvm.so]
+[persist.sys.dun.override]: [0]
+[persist.sys.force_highendgfx]: [0]
+[persist.sys.language]: [en]
+[persist.sys.localevar]: []
+[persist.sys.profiler_ms]: [0]
+[persist.sys.recovery_update]: [false]
+[persist.sys.root_access]: [1]
+[persist.sys.timezone]: [Asia/Tehran]
+[persist.sys.usb.config]: [mtp,adb]
+[persist.webview.provider]: [classic]
+
+=== 3. MOUNT STATUS ===
+[Checks: Bind mount (mmcblk0p18→sdcard0) and FUSE mounts]
+[Expected: mmcblk0p18 at /mnt/media_rw/sdcard0, /dev/fuse at /storage/sdcard0]
+
+[All storage-related mounts:]
+tmpfs /mnt/fuse tmpfs rw,seclabel,relatime,mode=775,gid=1000 0 0
+/dev/block/vold/179:33 /mnt/media_rw/sdcard1 vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1023,gid=1023,fmask=0007,dmask=0007,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
+/dev/fuse /storage/sdcard1 fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0
+
+[Mountpoint test for /storage/sdcard0:]
+Exit code: 1
+[Exit code 0 = mounted, 1 = not mounted]
+
+=== 4. DIRECTORY CONTENTS ===
+[Checks: Directory structure, permissions, SELinux contexts, standard folders]
+[Expected: Standard folders present, media_rw ownership, proper SELinux contexts]
+
+[/storage/] - User-facing mount points:
+drwx------ root     root              u:object_r:rootfs:s0 sdcard0
+drwxrwx--x root     sdcard_r          u:object_r:sdcard_internal:s0 sdcard1
+drwx------ root     root              u:object_r:rootfs:s0 usbdisk
+
+[/storage/sdcard0/] - What users/apps see (via FUSE):
+[Expected: Alarms, Android, DCIM, Download, Music, etc.]
+
+[/data/media/] - Actual storage location:
+[Expected: '0' directory (user 0) and 'obb' directory]
+drwxrwx--- media_rw media_rw          u:object_r:system_data_file:s0 0
+drwxrwx--- media_rw media_rw          u:object_r:system_data_file:s0 obb
+
+[/data/media/0/] - Real files location (what bind mount sources from):
+[Expected: Same folders as /storage/sdcard0/]
+
+[/mnt/media_rw/sdcard0/] - Bind mount target (what FUSE daemon reads):
+[Expected: Identical to /data/media/0/ - this IS /data/media/0/ via bind mount]
+
+[/mnt/shell/emulated/] - Legacy emulated storage location:
+[Expected: Does not exist on this ROM (not using emulated storage model)]
+/mnt/shell/emulated/: No such file or directory
+
+[/storage/emulated/] - Legacy emulated storage symlink:
+[Expected: Does not exist (we use direct /storage/sdcard0)]
+/storage/emulated/: No such file or directory
+
+[/mnt/media_rw/] - Parent directory for all media_rw mounts:
+[Expected: sdcard0 and sdcard1 directories present]
+drwx------ media_rw media_rw          u:object_r:rootfs:s0 sdcard0
+drwxrwx--- media_rw media_rw          u:object_r:sdcard_external:s0 sdcard1
+
+=== 5. FUSE DAEMON PROCESSES ===
+[Checks: FUSE daemon processes serving storage to apps]
+[Expected: Two /system/bin/sdcard processes (one for sdcard0, one for sdcard1)]
+
+media_rw  1656  1     3572   764   ffffffff 4032c4e0 S /system/bin/sdcard
+
+[Daemon command lines - shows what each daemon is serving:]
+PID 1656: /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
+
+=== 6. VDC VOLUME STATUS ===
+[Checks: What vold (volume daemon) knows about storage]
+[Expected: sdcard1 listed (state 4=Mounted), sdcard0 NOT listed (we bypass vold)]
+[Volume states: 0=No-Media, 1=Idle, 2=Pending, 3=Checking, 4=Mounted]
+
+[vdc volume list:]
+110 0 sdcard0 /storage/sdcard0 2 -
+110 0 sdcard1 /storage/sdcard1 4 9E2E-B9D2
+110 0 usbdisk /storage/usbdisk 0 -
+200 0 Volumes listed.
+
+[vdc volume mount /storage/sdcard0 attempt:]
+[Expected: Error 406 'No such file or directory' - vold doesn't manage sdcard0]
+405 0 volume operation failed (Device or resource busy)
+
+=== 7. MOUNTSERVICE STATUS ===
+[Checks: Framework's view of storage state - CRITICAL FOR APP COMPATIBILITY]
+[Expected: mState=mounted for sdcard0 (this is what apps check!)]
+
+[Full MountService state:]
+mObbMounts:
+
+mObbPathToStateMap:
+
+mVolumes:
+  StorageVolume:
+      mStorageId=65537 mPath=/storage/sdcard0 mDescriptionId=17039384
+      mPrimary=true mRemovable=false mEmulated=false mMtpReserveSpace=0
+      mAllowMassStorage=true mMaxFileSize=0 mOwner=null mUuid=null
+      mUserLabel=null mState=removed
+    Current state: removed
+  StorageVolume:
+      mStorageId=131073 mPath=/storage/sdcard1 mDescriptionId=17039385
+      mPrimary=false mRemovable=true mEmulated=false mMtpReserveSpace=0
+      mAllowMassStorage=true mMaxFileSize=0 mOwner=null mUuid=9E2E-B9D2
+      mUserLabel=2GB_SD mState=mounted
+    Current state: mounted
+  StorageVolume:
+      mStorageId=196609 mPath=/storage/usbdisk mDescriptionId=17039386
+      mPrimary=false mRemovable=true mEmulated=false mMtpReserveSpace=0
+      mAllowMassStorage=false mMaxFileSize=0 mOwner=null mUuid=null
+      mUserLabel=null mState=unmounted
+    Current state: unmounted
+
+mConnection:
+  06:58:50 - SND -> {1 volume list}
+  06:58:50 - RCV <- {110 1 sdcard0 /storage/sdcard0 2 -}
+  06:58:50 - RCV <- {110 1 sdcard1 /storage/sdcard1 1 -}
+  06:58:50 - RCV <- {110 1 usbdisk /storage/usbdisk 0 -}
+  06:58:50 - RCV <- {200 1 Volumes listed.}
+  06:58:50 - RMV <- {110 1 sdcard0 /storage/sdcard0 2 -}
+  06:58:50 - RMV <- {110 1 sdcard1 /storage/sdcard1 1 -}
+  06:58:50 - RMV <- {110 1 usbdisk /storage/usbdisk 0 -}
+  06:58:50 - RMV <- {200 1 Volumes listed.}
+  06:58:50 - SND -> {2 asec list}
+  06:58:50 - RCV <- {200 2 asec operation succeeded}
+  06:58:50 - RMV <- {200 2 asec operation succeeded}
+  06:59:01 - SND -> {3 volume mount /storage/sdcard1}
+  06:59:01 - RCV <- {605 Volume sdcard1 /storage/sdcard1 state changed from 1 (Idle-Unmounted) to 3 (Checking)}
+  06:59:05 - RCV <- {613 sdcard1 /storage/sdcard1 "9E2E-B9D2"}
+  06:59:05 - RCV <- {614 sdcard1 /storage/sdcard1 "2GB_SD"}
+  06:59:05 - RCV <- {605 Volume sdcard1 /storage/sdcard1 state changed from 3 (Checking) to 4 (Mounted)}
+  06:59:05 - RCV <- {200 3 volume operation succeeded}
+  06:59:05 - RMV <- {200 3 volume operation succeeded}
+  06:59:05 - NDC Command {3 volume mount /storage/sdcard1} took too long (3960ms)
+  06:59:05 - SND -> {4 volume mount /storage/usbdisk}
+  06:59:05 - RCV <- {612 Volume usbdisk /storage/usbdisk mount failed - no media}
+  06:59:05 - RCV <- {401 4 volume operation failed (No such device)}
+  06:59:05 - RMV <- {401 4 volume operation failed (No such device)}
+  06:59:05 - Unhandled event '612 Volume usbdisk /storage/usbdisk mount failed - no media'
+
+  Pending requests:
+
+[sdcard0 specific - LOOK FOR mState=mounted:]
+      mStorageId=65537 mPath=/storage/sdcard0 mDescriptionId=17039384
+      mPrimary=true mRemovable=false mEmulated=false mMtpReserveSpace=0
+      mAllowMassStorage=true mMaxFileSize=0 mOwner=null mUuid=null
+      mUserLabel=null mState=removed
+    Current state: removed
+  StorageVolume:
+      mStorageId=131073 mPath=/storage/sdcard1 mDescriptionId=17039385
+      mPrimary=false mRemovable=true mEmulated=false mMtpReserveSpace=0
+      mAllowMassStorage=true mMaxFileSize=0 mOwner=null mUuid=9E2E-B9D2
+      mUserLabel=2GB_SD mState=mounted
+    Current state: mounted
+
+=== 8. CONFIGURATION FILES ===
+[Checks: Boot configuration files that control storage mounting]
+[Expected: sdcard0 voldmanaged line removed/commented, vold.fstab absent]
+
+[/fstab.qcom - voldmanaged lines:]
+[Expected: sdcard0 line commented out, sdcard1 line active]
+/devices/platform/msm_sdcc.3/mmc_host   auto     auto     defaults         voldmanaged=sdcard0:23,noemulatedsd,nonremovable
+/devices/platform/msm_sdcc.1/mmc_host   auto     auto     defaults         voldmanaged=sdcard1:auto,noemulatedsd
+/devices/platform/msm_hsusb_host.0      auto     auto     defaults         voldmanaged=usbdisk:auto
+
+[/system/etc/vold.fstab (if exists):]
+[Expected: File does not exist]
+File does not exist (correct)
+
+=== 9. VOLD & SDCARD0 LOGS ===
+[Checks: Boot logs from vold and MountService initialization]
+[Expected: No errors, sdcard0 NOT mentioned in vold logs (bypassed)]
+
+[Recent vold and sdcard0 related log entries:]
+I/Vold    (  120): Vold 2.1 (the revenge) firing up
+D/Vold    (  120): Volume sdcard0 state changing -1 (Initializing) -> 0 (No-Media)
+D/Vold    (  120): Volume sdcard1 state changing -1 (Initializing) -> 0 (No-Media)
+D/Vold    (  120): Volume usbdisk state changing -1 (Initializing) -> 0 (No-Media)
+D/Vold    (  120): Volume sdcard0 state changing 0 (No-Media) -> 2 (Pending)
+D/Vold    (  120): Volume sdcard1 state changing 0 (No-Media) -> 2 (Pending)
+D/Vold    (  120): Volume sdcard1 state changing 2 (Pending) -> 1 (Idle-Unmounted)
+D/MountService(  560): got storage path: /storage/sdcard0 description: Internal storage primary: true removable: false emulated: false mtpReserve: 0 allowMassStorage: true maxFileSize: 0
+D/MountService(  560):     mStorageId=0 mPath=/storage/sdcard0 mDescriptionId=17039384 mPrimary=true
+D/MountService(  560): volume state changed for /storage/sdcard0 (unmounted -> removed)
+I/Vold    (  120): /dev/block/vold/179:33 being considered for volume sdcard1
+D/Vold    (  120): Volume sdcard1 state changing 1 (Idle-Unmounted) -> 3 (Checking)
+D/Vold    (  120): Trying to get filesystem type for /dev/block/vold/179:33
+D/Vold    (  120): Found vfat filesystem on /dev/block/vold/179:33
+I/fsck_msdos(  120): ** /dev/block/vold/179:33
+I/Vold    (  120): Filesystem check completed OK
+D/Vold    (  120): blkid identified as /dev/block/vold/179:33: LABEL="2GB_SD" UUID="9E2E-B9D2" TYPE="vfat"
+D/Vold    (  120): Volume sdcard1 state changing 3 (Checking) -> 4 (Mounted)
+E/VoldConnector(  560): NDC Command {3 volume mount /storage/sdcard1} took too long (3960ms)
+W/MediaScanner( 1747): Error opening directory '/storage/sdcard0/', skipping: Permission denied.
+W/MediaScanner( 1747): Error opening directory '/storage/sdcard0/', skipping: Permission denied.
+
+[Sysfs block device paths - hardware detection:]
+[Expected: mmcblk0 → msm_sdcc.3 (internal eMMC), mmcblk1 → msm_sdcc.1 (external SD)]
+lrwxrwxrwx root     root              2026-02-22 10:22 mmcblk0 -> ../devices/platform/msm_sdcc.3/mmc_host/mmc0/mmc0:0001/block/mmcblk0
+lrwxrwxrwx root     root              2026-02-22 10:22 mmcblk1 -> ../devices/platform/msm_sdcc.1/mmc_host/mmc1/mmc1:1234/block/mmcblk1
+
+=== 10. FRAMEWORK STORAGE LOGS ===
+[Checks: Framework services handling storage (MountService, MTP, etc.)]
+[Expected: MountService and MtpService recognize sdcard0]
+
+[MountService/StorageManager/ExternalStorage:]
+I/PackageManager(  560): /system/priv-app/ExternalStorageProvider.apk changed; collecting certs
+I/PackageManager(  560): Running dexopt on: com.android.externalstorage
+D/MtpService( 1747): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService( 1747): addStorageLocked 131073 /storage/sdcard1
+D/MtpService( 1747): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService( 1747): starting MTP server in MTP mode
+D/MtpService( 1747): addStorageLocked 131073 /storage/sdcard1
+D/ActivityThread( 1915): handleBindApplication:com.android.externalstorage
+D/ExternalStorage( 1915): After updating volumes, found 1 active roots
+D/ExternalStorage( 1915): After updating volumes, found 1 active roots
+W/MediaScanner( 1747): Error opening directory '/storage/sdcard0/', skipping: Permission denied.
+D/MtpService( 1747): updating state; isCurrentUser=true, mMtpLocked=false
+W/MediaScanner( 1747): Error opening directory '/storage/sdcard0/', skipping: Permission denied.
+
+=== 11. FILE CREATION TEST ===
+[Checks: Can we actually write to storage? (Ultimate functionality test)]
+[Expected: SUCCESS - file creation works]
+
+FAILED: Cannot create file at /storage/sdcard0/
+
+====== END DIAGNOSTIC REPORT ======
+
+=== QUICK DIAGNOSIS GUIDE ===
+
+IF STORAGE WORKS:
+  • Section 7 shows: mState=mounted ✓
+  • Section 3 shows: bind mount present ✓
+  • Section 11 shows: File creation SUCCESS ✓
+
+IF STORAGE BROKEN:
+  • Section 7 shows mState=removed → Framework patch missing/failed
+  • Section 3 missing bind mount → mount_sdcard0.sh not running
+  • Section 1 shows fuse_sdcard0=stopped → FUSE daemon didn't start
+  • Section 11 shows FAILED → Permissions or mount issue
+
+SHARE THIS OUTPUT WITH AI (ChatGPT/ClaudeAI) FOR ANALYSIS
