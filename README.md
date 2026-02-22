@@ -109,8 +109,8 @@ sdcard_diags.sh
 ## Support
 
 - **XDA Thread**: [Post #349](https://xdaforums.com/t/rom-3-4-cyanogenmod-11-stable-for-mini-2-latest-discontinued.3293891/post-90496149)
-- **Issues**: Use GitHub Issues for bug reports
-- **Discussions**: Use GitHub Discussions for questions
+- **Issues**: Go to main [XDA Thread](https://xdaforums.com/t/rom-3-4-cyanogenmod-11-stable-for-mini-2-latest-discontinued.3293891/) for bug reports
+- **Discussions**: Go to main [XDA Thread](https://xdaforums.com/t/rom-3-4-cyanogenmod-11-stable-for-mini-2-latest-discontinued.3293891/) for questions
 
 ## License
 
