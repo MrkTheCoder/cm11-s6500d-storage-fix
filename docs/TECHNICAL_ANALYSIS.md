@@ -5,7 +5,7 @@
 **Device**: Samsung Galaxy Mini 2 (S6500D)  
 **Fix Authors**: RTheGeek & ClaudeAI  
 **Date**: February 20, 2026  
-**XDA Thread**: [original ROM thread URL]
+**XDA Thread**: [[Post #349](https://xdaforums.com/t/rom-3-4-cyanogenmod-11-stable-for-mini-2-latest-discontinued.3293891/post-90496149)]
 
 ---
 
