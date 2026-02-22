@@ -100,8 +100,6 @@ sdcard_diags.sh
 ## Technical Documentation
 
 - 📄 [Complete Technical Analysis](docs/TECHNICAL_ANALYSIS.md)
-- 📄 [Root Cause Analysis](docs/ROOT_CAUSE.md)
-- 📄 [Patch Application Guide](patches/README.md)
 
 ## Tools
 
@@ -110,7 +108,7 @@ sdcard_diags.sh
 
 ## Support
 
-- **XDA Thread**: [Link to your thread]
+- **XDA Thread**: [Post #349](https://xdaforums.com/t/rom-3-4-cyanogenmod-11-stable-for-mini-2-latest-discontinued.3293891/post-90496149)
 - **Issues**: Use GitHub Issues for bug reports
 - **Discussions**: Use GitHub Discussions for questions
 
