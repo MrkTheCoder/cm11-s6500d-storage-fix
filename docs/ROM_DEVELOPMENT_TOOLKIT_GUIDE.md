@@ -55,22 +55,25 @@ A comprehensive guide for modifying Android ROM files on Linux (Xubuntu).
 | **rhash** | `sudo apt install rhash` | Command-line hash calculator with recursive folder support |
 | **tree** | `sudo apt install tree` | Display directory structure in tree format |
 | **nano** | `sudo apt install nano` | Simple terminal text editor (backup option) |
-| **vim** | `sudo apt install vim` | Advanced terminal text editor |
 
 ### One-Line Installation Command
 
 ```bash
-sudo apt update && sudo apt install -y apktool android-tools-adb android-tools-fastboot git cpio gzip liblz4-tool squashfs-tools wget curl p7zip-full unzip zip openjdk-8-jdk python3 python3-pip perl file mousepad peazip gtkhash rhash tree nano vim
+sudo apt update && sudo apt install -y apktool android-tools-adb android-tools-fastboot git cpio gzip liblz4-tool squashfs-tools wget curl p7zip-full unzip zip openjdk-8-jdk python3 python3-pip perl file mousepad peazip gtkhash rhash tree nano
 ```
 
 ### Manual Installation: Android Image Kitchen
 
 ```bash
 cd ~
-git clone https://github.com/osm0sis/Android-Image-Kitchen.git
-cd Android-Image-Kitchen
+git clone https://github.com/osm0sis/Android-Image-Kitchen.git AIK
+cd AIK
 chmod +x unpackimg.sh repackimg.sh cleanup.sh
 ```
+
+- A folder named AIK will be created
+- All repository files will be inside `AIK` folder
+
 
 ---
 
@@ -107,12 +110,12 @@ After Xubuntu is installed and running, open **Terminal** and run:
 sudo apt update
 
 # Install all required packages
-sudo apt install -y apktool android-tools-adb android-tools-fastboot git cpio gzip liblz4-tool squashfs-tools wget curl p7zip-full unzip zip openjdk-8-jdk python3 python3-pip perl file mousepad peazip gtkhash rhash tree nano vim
+sudo apt install -y apktool android-tools-adb android-tools-fastboot git cpio gzip liblz4-tool squashfs-tools wget curl p7zip-full unzip zip openjdk-8-jdk python3 python3-pip perl file mousepad peazip gtkhash rhash tree nano
 
 # Clone Android Image Kitchen
 cd ~
-git clone https://github.com/osm0sis/Android-Image-Kitchen.git
-cd Android-Image-Kitchen
+git clone https://github.com/osm0sis/Android-Image-Kitchen.git AIK
+cd AIK
 chmod +x *.sh
 
 # Verify installations
@@ -139,7 +142,7 @@ When modifying ROM files, you'll follow this general pattern regardless of file 
 
 3. **Edit** - Modify the unpacked/decompiled files
    - Use **Mousepad** text editor (GUI)
-   - Or terminal editors: `nano`, `vim`
+   - Or terminal editors: `nano`(Default)
    - Edit configuration files, smali code, scripts, etc.
 
 4. **Repack/Recompile** - Reverse the process
@@ -166,6 +169,8 @@ When modifying ROM files, you'll follow this general pattern regardless of file 
 
 The `boot.img` file contains the kernel and ramdisk. The ramdisk includes critical initialization scripts like `init.qcom.rc` and filesystem configuration in `fstab.qcom`.
 
+⚠️ Attention: If you encounter a permission error while executing a command, prepend `sudo` to the command and try again.
+
 ### Unpacking boot.img
 
 **Step 1: Extract boot.img from ROM ZIP**
@@ -189,32 +194,53 @@ unzip ~/Downloads/rom.zip boot.img
 **Step 2: Unpack boot.img with Android Image Kitchen**
 
 ```bash
-# Copy boot.img to AIK directory
-cp boot.img ~/Android-Image-Kitchen/
+# Copy boot.img to Android-Image-Kitchen directory
+cp boot.img ~/AIK/
 
-# Navigate to AIK
-cd ~/Android-Image-Kitchen
+# Navigate to Android-Image-Kitchen
+cd ~/AIK
 
 # Unpack the boot image
 ./unpackimg.sh boot.img
 ```
 
 **Output:**
+For Instance:
 ```
 Android Image Kitchen - UnpackImg Script
 by osm0sis @ xda-developers
-
-Splitting image...
+ 
+Supplied image: boot.img
+ 
+Setting up work folders...
+ 
+Image type: AOSP
+ 
+Splitting image to "split_img/"...
+ANDROID! magic found at: 0
+BOARD_KERNEL_CMDLINE androidboot.selinux=permissive
+BOARD_KERNEL_BASE 0x00200000
+BOARD_NAME 
+BOARD_PAGE_SIZE 4096
+BOARD_HASH_TYPE sha1
+BOARD_KERNEL_OFFSET 0x00008000
+BOARD_RAMDISK_OFFSET 0x01000000
+BOARD_SECOND_OFFSET 0x00f00000
+BOARD_TAGS_OFFSET 0x00000100
+BOARD_HEADER_VERSION 0
+ 
+Unpacking ramdisk (as root) to "ramdisk/"...
+ 
+Compression used: gzip
+2010 blocks
+ 
 Done!
-
-Unpacked kernel: kernel
-Unpacked ramdisk: ramdisk/
 ```
 
 **Step 3: Navigate to unpacked ramdisk**
 
 ```bash
-cd ~/Android-Image-Kitchen/ramdisk
+cd ~/AIK/ramdisk
 ls -la
 ```
 
@@ -260,9 +286,6 @@ service mount_sdcard0 /system/bin/sh /system/bin/mount_sdcard0.sh
 ```bash
 # Using nano (simpler)
 nano init.qcom.rc
-
-# Using vim (advanced)
-vim init.qcom.rc
 ```
 
 ### Repacking boot.img
@@ -270,43 +293,61 @@ vim init.qcom.rc
 **Step 1: Repack the modified ramdisk and boot image**
 
 ```bash
-cd ~/Android-Image-Kitchen
+cd ~/AIK
 
 # Repack boot.img
 ./repackimg.sh
 ```
+This will create a new file called `image-new.img`.
+
 
 **Output:**
+For Instance:
 ```
 Android Image Kitchen - RepackImg Script
 by osm0sis @ xda-developers
-
-Packing ramdisk...
-Done!
-
+ 
+Packing ramdisk (as root)...
+ 
+Using compression: gzip
+ 
+Getting build information...
+kernel = boot.img-kernel
+cmdline = androidboot.selinux=permissive
+board = 
+base = 0x00200000
+pagesize = 4096
+kernel_offset = 0x00008000
+ramdisk_offset = 0x01000000
+second_offset = 0x00f00000
+tags_offset = 0x00000100
+header_version = 0
+hashtype = sha1
+ 
 Building image...
+ 
+Using format: AOSP
+ 
 Done!
-
-New image: image-new.img
 ```
 
 **Step 2: Rename and verify**
 
 ```bash
 # Rename to boot.img
-mv image-new.img boot-modified.img
+mv image-new.img /tmp/boot.img
 
 # Verify file size (should be similar to original)
-ls -lh boot*.img
+ls -lh /tmp/boot.img
 
-# Calculate hash
-sha1sum boot-modified.img
+# IF YOU NEED: Calculate hash
+sha1sum /tmp/boot.img
 ```
 
 **Step 3: Clean up for next modification**
 
 ```bash
-# Clean up AIK workspace
+# Clean up Android-Image-Kitchen workspace
 ./cleanup.sh
 ```
 
@@ -315,19 +356,18 @@ sha1sum boot-modified.img
 Using **PeaZip**:
 ```
 Open ROM ZIP → Navigate to boot.img → 
-Delete old boot.img → 
-Add your boot-modified.img → 
-Rename to boot.img
+Add or Drag & Drop your /tmp/boot.img → 
+Accept the replacement dialog box for new boot.img
 ```
 
 Using command line:
 ```bash
 # Update boot.img in ROM ZIP
 cd ~/rom-work
-zip -u rom.zip boot-modified.img
+zip -u rom.zip /tmp/boot.img
 # Or replace directly
 zip -d rom.zip boot.img
-zip -u rom.zip boot-modified.img
+zip -u rom.zip /tmp/boot.img
 # Rename inside zip if needed
 ```
 
@@ -485,7 +525,7 @@ ls -lh services.jar.out/dist/services.jar
 # Copy recompiled JAR over original
 cp services.jar.out/dist/services.jar system/framework/services.jar
 
-# Calculate hash for verification
+# IF YOU NEED IT: Calculate hash for verification
 sha1sum system/framework/services.jar
 ```
 
@@ -494,8 +534,8 @@ sha1sum system/framework/services.jar
 Using **PeaZip**:
 ```
 Open ROM ZIP → Navigate to system/framework/services.jar →
-Delete old services.jar →
-Add your modified services.jar
+Add or Drag & Drop your services.jar →
+Accept the replacement dialog box for new services.jar
 ```
 
 Using command line:
@@ -820,8 +860,8 @@ apktool d services.jar
 # Check boot.img format
 file boot.img
 
-# Try AIK cleanup and retry
-cd ~/Android-Image-Kitchen
+# Try Android-Image-Kitchen cleanup and retry
+cd ~/AIK
 ./cleanup.sh
 ./unpackimg.sh boot.img
 ```
