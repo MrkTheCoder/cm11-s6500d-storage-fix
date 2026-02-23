@@ -20,6 +20,8 @@ Since the 2018 release of CM11 for S6500D, users experienced:
 
 - **📥 Download Fixed ROM**: [XDA Thread Post #349](https://xdaforums.com/t/rom-3-4-cyanogenmod-11-stable-for-mini-2-latest-discontinued.3293891/post-90496149)
 - **📖 Installation Guide**: [INSTALLATION.md](INSTALLATION.md)
+- **📖 ROM Development Toolkit Guide**: [docs/ROM_DEVELOPMENT_TOOLKIT_GUIDE.md](docs/ROM_DEVELOPMENT_TOOLKIT_GUIDE.md)
+  - Steps I followed from start to finish for editing ROM files
 - **🔧 Technical Details**: [docs/TECHNICAL_ANALYSIS.md](docs/TECHNICAL_ANALYSIS.md)
 - **🛠️ Diagnostic Tool**: [tools/sdcard_diags.sh](tools/sdcard_diags.sh)
 
